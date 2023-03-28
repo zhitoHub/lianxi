@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>首页</title>
+  <link rel="stylesheet" href="css/index.css" >
+  <script src="js/vue.js"></script>
+  <script src="./js/axios.js"></script>
+</head>
+<body>
+<main>
+  <div class="content">
+    <div class="top"></div>
+    <div class="nav">
+      <ul >
+        <li>
+          <a href="">系统管理</a>
+        </li>
+        <li>
+          <a href="">业务处理</a>
+        </li>
+        <li>
+          <a href="">交易流程</a>
+        </li>
+        <li style="float: right;margin-right: 20px">
+          <a href="">退出系统</a>
+        </li>
+      </ul>
+    </div>
+    <div class="center">
+      <div class="left">
+        <ul>
+          <li>
+            <a href="table.html">建设工程实施报告申请</a>
+          </li>
+          <li>
+            <a href="err.html">入场交易登记</a>
+          </li>
+          <li>
+            <a href="err.html">建设工程项目招标登记</a>
+          </li>
+          <li>
+            <a href="err.html">发布招标公告</a>
+          </li>
+          <li>
+            <a href="err.html">投标单位报名及资格审查</a>
+          </li>
+          <li>
+            <a href="err.html">确定入围队伍</a>
+          </li>
+          <li>
+            <a href="err.html">招标答疑</a>
+          </li>
+          <li>
+            <a href="err.html">抽取专家</a>
+          </li>
+          <li>
+            <a href="err.html">开标</a>
+          </li>
+          <li>
+            <a href="err.html">评标及推荐中标候选人</a>
+          </li>
+          <li>
+            <a href="err.html">中标公示</a>
+          </li>
+          <li>
+            <a href="err.html">抽取交易服务费</a>
+          </li>
+          <li>
+            <a href="err.html">签发中标通知书</a>
+          </li>
+          <li>
+            <a href="err.html">签订合同及备案</a>
+          </li>
+          <li>
+            <a href="err.html">追价管理</a>
+          </li>
+          <li>
+            <a href="err.html">办理保险</a>
+          </li>
+          <li>
+            <a href="err.html">质量监管委托</a>
+          </li>
+          <li>
+            <a href="err.html">安全监督委托</a>
+          </li>
+          <li>
+            <a href="err.html">办理备案</a>
+          </li>
+          <li>
+            <a href="err.html">办理施工许可证</a>
+          </li>
+        </ul>
+      </div>
+      <div class="right">
+        <div class="title">
+          <div class="top-title">
+            >>项目信息录入
+          </div>
+          <div class="left-title">
+            您的位置: 招投标流程 > 建设工程报建 > 项目信息录入
+          </div>
+        </div>
+        <div id="tab">
+          <table class="tables" border="1">
+            <tr style="height: 30px">
+              <td>工程编号:</td>
+              <td>
+                <input type="text" style="height: 30px;float: left;margin-left: 10px;" v-model="id">
+              </td>
+            </tr>
+            <tr style="height: 30px">
+              <td>工程名称:</td>
+              <td>
+                <input type="text" style="height: 30px;float: left;margin-left: 10px;" v-model="name">
+              </td>
+            </tr>
+            <tr style="height: 30px">
+              <td>法人代表:</td>
+              <td>
+                <input type="text" style="height: 30px;float: left;margin-left: 10px;" v-model="representative">
+              </td>
+            </tr>
+            <tr style="height: 30px">
+              <td>建设单位电话:</td>
+              <td>
+                <input type="text" style="height: 30px;float: left;margin-left: 10px;" v-model="phone">
+              </td>
+            </tr>
+            <tr style="height: 30px">
+              <td>建设单位地址:</td>
+              <td>
+                <input type="text" style="height: 30px;float: left;margin-left: 10px;" v-model="city">
+              </td>
+            </tr>
+
+          </table>
+          <div style="display: flex;margin-top: 30px;justify-content: center">
+            <button @click="revise()" v-if="flay" style="width: 100px;height: 25px">修改</button>
+            <button @click="add()" v-if="!flay" style="width: 100px;height: 25px">确定</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+  const vue = new Vue({
+    el:"#tab",
+    data:{
+      flay:false,
+      id:"",
+      name:"",
+      representative:"",
+      phone:"",
+      city:"",
+    },
+    created(){
+      console.log(this.id);
+      this.search();
+    },
+    methods:{
+      add() {
+        if (!this.id) {
+          return alert('工程编号不能为空!');
+        }
+        if(!this.name){
+          return alert('工程名称不能为空!');
+        }
+        else {
+          axios({
+            method:'post',
+            url:'http://localhost:80/hotel/add',
+            params:{
+              projectId:this.id,
+              projectName:this.name,
+              deputyName:this.representative,
+              telephone:this.phone,
+              addr:this.city
+            }
+          }).then(res => {
+            alert('添加成功!');
+            location.href = 'table.html'
+          });
+        }
+      },
+      search(){
+        if(location.href.indexOf('?') !== -1){
+          this.flay = true
+          let str = location.href.split('?')[1].split('=')[1];
+          str = decodeURIComponent(str);
+          console.log(str)
+          axios({
+            method: 'get',
+            url: 'http://localhost:80/hotel/sellById',
+            params: {
+              projectId:str
+            }
+          }).then(res => {
+            if(res.status === 200){
+              console.log(res.data);
+              this.id = res.data.projectId;
+              this.name = res.data.projectName;
+              this.representative = res.data.deputyName;
+              this.phone = res.data.telephone;
+              this.city = res.data.addr;
+            }
+          })
+        }
+      },
+      revise(){
+        axios({
+          method:'put',
+          url:'http://localhost:80/hotel/update',
+          params:{
+            projectId:this.id,
+            projectName:this.name,
+            deputyName:this.representative,
+            telephone:this.phone,
+            addr:this.city
+          }
+        }).then(res => {
+          if(res.status === 200){
+            location.href = 'table.html'
+          }
+        })
+      }
+    }
+
+  });
+</script>
+</body>
+</html>

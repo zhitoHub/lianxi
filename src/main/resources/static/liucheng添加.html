@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <link rel="stylesheet" href="css/index.css" >
+    <script src="js/vue.js"></script>
+    <script src="js/axios.js"></script>
+    <style>
+        .li:hover {
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div class="content" id="center">
+        <div class="top"></div>
+        <div class="nav">
+            <ul >
+                <li>
+                    <a href="">系统管理</a>
+                </li>
+                <li>
+                    <a href="">业务处理</a>
+                </li>
+                <li>
+                    <a href="index.html">交易流程</a>
+                </li>
+                <li style="float: right;margin-right: 20px">
+                    <a href="">退出系统</a>
+                </li>
+            </ul>
+        </div>
+        <div class="center">
+            <div class="left">
+                <ul>
+                    <li>
+                        <a href="err.html">功能角色定义</a>
+                    </li>
+                    <li>
+                        <a href="err.html">功能权限定义</a>
+                    </li>
+                    <li>
+                        <a href="err.html">交易流程角色定义</a>
+                    </li>
+                    <li @click="flays()" class="li">
+                        <a >交易流程步骤定义</a>
+                    </li>
+                    <li>
+                        <a href="err.html">密码锁查验</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="right" v-if="flay">
+                <div class="title">
+                    <div class="top-title" >
+                        >>流程步骤定义
+                    </div>
+                    <div class="left-title">
+                        您的位置: 系统管理 > 流程步骤定义
+                    </div>
+                </div>
+                <div style="width: 90%;height: 60%;margin: 0 auto;margin-top: 30px;display: flex;">
+                    <div class="tab">
+                        <div class="ti">&#8226流程步骤列表</div>
+                        <table border="1" style="width: 100%">
+                            <tr style="height: 30px;background-color: skyblue">
+                                <td width="30%">流程ID</td>
+                                <td>流程名称</td>
+                            </tr>
+                            <tr v-for="item in arr">
+                                <td>{{item.stepNo}}</td>
+                                <td>{{item.stepName}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="lefts" >
+                        <div class="top-input">
+                            <div class="ti">&#8226流程步骤列表</div>
+                            <table border="1" style="width: 100%;background-color: lavender">
+                                <tr>
+                                    <td style="width: 30%">
+                                        名称
+                                    </td>
+                                    <td>
+                                        <input type="text" class="text" v-model="name">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 30%" >
+                                        时限(天)
+                                    </td>
+                                    <td>
+                                        <input type="text" class="text" v-model="time">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 30%">
+                                        描述
+                                    </td>
+                                    <td>
+                                        <input type="text" class="text" v-model="step">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 30%">
+                                        链接地址
+                                    </td>
+                                    <td>
+                                        <input type="text" class="text" v-model="url">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 30%">
+
+                                    </td>
+                                    <td>
+                                        <button class="but" @click="add()">确定</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="select">
+                        <div style="margin-top: 10px">
+                            <div class="ti">&#8226流程步骤删除</div>
+                            <table border="1" style="width: 100%;">
+                                <tr>
+                                    <td>ID号</td>
+                                    <td style="display: flex">
+                                        <input type="text" style="height: 25px;margin-left: 10px" v-model="id">
+                                        <button style="margin-left: 10px;width: 50px" @click="del()">删除</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    const liu = new Vue({
+        el:"#center",
+        data:{
+            flay:false,
+            arr:[],
+            name:"",
+            url:"",
+            time:"",
+            step:"",
+            id:""
+        },
+        methods:{
+            flays(){
+                this.flay = !this.flay;
+            },
+            getAll(){
+                axios({
+                    method:'get',
+                    url:'http://localhost:80/hotem/selectAll',
+                }).then(res => {
+                    this.arr = res.data;
+                    console.log(res.data)
+                });
+            },
+            add(){
+                if(!this.name){
+                    return alert('名称不能为空');
+                }
+                if(!this.time){
+                    return alert('时限不能为空!');
+                }
+               else {
+                    axios({
+                        method:'post',
+                        url:'http://localhost:80/hotem/insert',
+                        params:{
+                            stepName:this.name,
+                            limitTime:this.time,
+                            stepDes:this.step,
+                            url:this.url
+                        }
+                    }).then(res => {
+                        if(res.status === 200){
+                            this.name = ""
+                            this.time = ""
+                            this.step = ""
+                            this.url = ""
+                            this.getAll();
+                            alert('添加成功!')
+                        }
+                    });
+                }
+            },
+            del(){
+               if(!this.id){
+                   return alert('请输入ID');
+               }else {
+                   axios({
+                       method:'delete',
+                       url:'http://localhost:80/hotem/delete',
+                       params:{
+                           stepNo:this.id
+                       }
+                   }).then(res => {
+                      if(res.status === 200){
+                          alert(res.data);
+                          this.getAll();
+                      }
+                   });
+               }
+            }
+        },
+        mounted() {
+            this.getAll();
+        }
+    })
+</script>
+</body>
+</html>
